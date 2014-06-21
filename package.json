@@ -3,8 +3,5 @@
   "version": "0.1.1",
   "license": "MIT",
   "repository": "git://github.com/galedric/node-pack.git",
-  "description": "Compact binary serialization",
-  "devDependencies": {
-    "tap": "*"
-  }
+  "description": "Compact binary serialization"
 }
