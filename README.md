@@ -13,7 +13,9 @@ npm install node-pack
 
 ## API
 
-`var Pack = require('node-pack');`
+```js
+var Pack = require('node-pack');
+```
 
 ### `Pack.encode(value, [dictionary])`
 
@@ -159,11 +161,11 @@ Strings are UTF-8 encoded. The `length` property is the byte-length of the strin
 
 Buffers are raw binary data. The `length` property is the byte-length of the buffer. Following data are the raw buffer bytes.
 
-### Array
+### List
 
 Arrays are ordered lists of elements. The `length` property is the number of elements in the array.
 
-Following data are concatenated VCS-encoded elements representation.
+Following data are concatenated serialized elements representation.
 
 ### Structure
 
