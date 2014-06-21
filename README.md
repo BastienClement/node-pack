@@ -25,7 +25,7 @@ Encode `value` and return its serialized `Buffer`.
 
 Decode `buffer` and return its deserialized value.
 
-### Dictionnary
+### Dictionary
 
 The dictionary is a optional list of commonly used values (up to 127 entries).
 
