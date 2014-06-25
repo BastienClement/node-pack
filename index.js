@@ -21,8 +21,7 @@
 	SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-var BufferReader = require("./reader");
-var BufferWriter = require("./writer");
+var SequentialBuffer = require("sequential-buffer");
 
 /*
  * Encode
@@ -36,10 +35,10 @@ function lengthy_type(writer, type, length) {
 		writer.writeUInt8(length);
 	} else if (length < 0x10000) {
 		writer.writeUInt8(type | 0x10);
-		writer.writeUInt16(length);
+		writer.writeUInt16BE(length);
 	} else if (length < 0x100000000) {
 		writer.writeUInt8(type | 0x20);
-		writer.writeUInt32(length);
+		writer.writeUInt32BE(length);
 	} else {
 		throw new Error("Unable to encode length: " + length);
 	}
@@ -49,7 +48,7 @@ function PackEncode(value, dictionary, backrefs, writer) {
 	if (!backrefs) backrefs = { strings: [], lists: [], structs: [] };
 
 	if (!writer) {
-		writer = new BufferWriter();
+		writer = new SequentialBuffer();
 		PackEncode(value, dictionary, backrefs, writer);
 		return writer.getBuffer();
 	}
@@ -107,10 +106,10 @@ function PackEncode(value, dictionary, backrefs, writer) {
 						writer.writeInt8(value);
 					} else if (value >= -32768) {
 						writer.writeUInt8(0x52);
-						writer.writeInt16(value);
+						writer.writeInt16BE(value);
 					} else {
 						writer.writeUInt8(0x62);
-						writer.writeInt32(value);
+						writer.writeInt32BE(value);
 					}
 				} else {
 					// Unsigned
@@ -119,10 +118,10 @@ function PackEncode(value, dictionary, backrefs, writer) {
 						writer.writeUInt8(value);
 					} else if (value < 65536) {
 						writer.writeUInt8(0x12);
-						writer.writeUInt16(value);
+						writer.writeUInt16BE(value);
 					} else {
 						writer.writeUInt8(0x22);
-						writer.writeUInt32(value);
+						writer.writeUInt32BE(value);
 					}
 				}
 
@@ -131,7 +130,7 @@ function PackEncode(value, dictionary, backrefs, writer) {
 
 			// Double
 			writer.writeUInt8(0x13);
-			writer.writeDouble(value);
+			writer.writeDoubleBE(value);
 			return;
 
 		case "string":
@@ -182,7 +181,7 @@ function PackEncode(value, dictionary, backrefs, writer) {
  */
 
 function PackDecode(buffer, dictionary, backrefs) {
-	if (!(buffer instanceof BufferReader)) buffer = new BufferReader(buffer);
+	if (!(buffer instanceof SequentialBuffer)) buffer = new SequentialBuffer(buffer);
 	if (!backrefs) backrefs = { strings: [], lists: [], structs: [] };
 
 	var type = buffer.nextUInt8();
@@ -213,11 +212,11 @@ function PackDecode(buffer, dictionary, backrefs) {
 		case 2: // Integer
 			switch (qualifiers) {
 				case 0: return buffer.nextUInt8();
-				case 1: return buffer.nextUInt16();
-				case 2: return buffer.nextUInt32();
+				case 1: return buffer.nextUInt16BE();
+				case 2: return buffer.nextUInt32BE();
 				case 4: return buffer.nextInt8();
-				case 5: return buffer.nextInt16();
-				case 6: return buffer.nextInt32();
+				case 5: return buffer.nextInt16BE();
+				case 6: return buffer.nextInt32BE();
 				default:
 					console.log(buffer.offset);
 					throw new Error("Unknown integer qualifiers: " + qualifiers);
@@ -225,8 +224,8 @@ function PackDecode(buffer, dictionary, backrefs) {
 
 		case 3: // Float
 			switch (qualifiers) {
-				case 0: return buffer.nextFloat();
-				case 1: return buffer.nextDouble();
+				case 0: return buffer.nextFloatBE();
+				case 1: return buffer.nextDoubleBE();
 				default:
 					throw new Error("Unknown float qualifier: " + qualifiers);
 			}
@@ -241,8 +240,8 @@ function PackDecode(buffer, dictionary, backrefs) {
 			var length;
 			switch (qualifiers) {
 				case 0: length = buffer.nextUInt8(); break;
-				case 1: length = buffer.nextUInt16(); break;
-				case 2: length = buffer.nextUInt32(); break;
+				case 1: length = buffer.nextUInt16BE(); break;
+				case 2: length = buffer.nextUInt32BE(); break;
 				default:
 					throw new Error("Unknown length qualifier: " + qualifiers);
 			}
