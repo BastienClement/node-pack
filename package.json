@@ -5,6 +5,6 @@
   "repository": "git://github.com/galedric/node-pack.git",
   "description": "Compact binary serialization",
   "dependencies": {
-    "sequential-buffer": "~0.1.0"
+    "sequential-buffer": "~0.2.0"
   }
 }

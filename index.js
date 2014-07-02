@@ -48,9 +48,9 @@ function PackEncode(value, dictionary, backrefs, writer) {
 	if (!backrefs) backrefs = { strings: [], lists: [], structs: [] };
 
 	if (!writer) {
-		writer = new SequentialBuffer();
+		writer = new SequentialBuffer(512, true);
 		PackEncode(value, dictionary, backrefs, writer);
-		return writer.getBuffer();
+		return writer.finalize();
 	}
 
 	var type = typeof value;
